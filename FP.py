@@ -1,5 +1,26 @@
 import math
 
+def numinput(message):
+    inp = "A"
+    while True:
+        try:
+            inp = int(inp)
+        except ValueError:
+            inp = input(message)
+        else:
+            return inp
+            break
+def floatinput(message):
+    inp = "A"
+    while True:
+        try:
+            inp = float(inp)
+        except ValueError:
+            inp = input(message)
+        else:
+            return inp
+            break
+
 TFDTC = [[74,730,0,0,0], [73,695,1,.4,2], [73,655,3,.8,4], [73,620,4,1.2,6], [73,600,6,1.5,8], [73,550,8,1.9,10], [73,505,10,2.2,13],
  [73,455,12,2.6,16], [72,410,14,3.0,19], [72,360,17,3.4,22], [72,315,20,3.9,27], [72,265,24,4.4,32], [72,220,28,5.0,38]]
 def climbPerf(startingAltitude,endingAltitude):
@@ -43,20 +64,17 @@ def windCorrectionCalc(trueCourse, trueAirSpeed, windDirection, windVelocity):
     windCorrectionAngle = int(windCorrectionAngle*10)/10
     output = [windCorrectionAngle, groundSpeed]
     return output
-legs = eval(input("Enter number of legs: "))
+legs = numinput("Enter number of legs: ")
 routeData = []
-departureAltitude = eval(input("Enter departure airport altitude: "))
+departureAltitude = numinput("Enter departure airport altitude: ")
 lastAltitude = int(departureAltitude / 1000)
-trueAirSpeed = eval(input("Enter Cruise True Air Speed: "))
-fuelConsumptionPerMinute = eval(input("Enter fuel consumption in gallons per hour: ")) / 60
-print('\n')
-
+trueAirSpeed = numinput("Enter Cruise True Air Speed: ")
+fuelConsumptionPerMinute = floatinput("Enter fuel consumption in gallons per hour: ") / 60
 for i in range(0,legs):
-    print('\n')
     print("Leg " + str(i + 1) + '\n')
-    trueCourse = eval(input("Enter true course: "))
-    altitude = eval(input("Enter altitude for leg: "))
-    distance = eval(input("Enter distance for leg: "))
+    trueCourse = numinput("Enter true course: ")
+    altitude = numinput("Enter altitude for leg: ")
+    distance = floatinput("Enter distance for leg: ")
     altitude = int(altitude/1000)
     if(i > 0):
         if(altitude != lastAltitude):
@@ -91,29 +109,29 @@ for i in range(0,legs):
     routeData.append([trueCourse, trueAirSpeed, 0, 0, 0, altitude, 0, 0, 0, 0, 0, distance, 0, 0])
     lastAltitude = altitude
 
-print('\n')
-windChanges = eval(input("Enter number of wind changes: "))
+windChanges = numinput("Enter number of wind changes: ")
 if(windChanges > 0 and windChanges <= legs):
     windLegIndex = 0
     for i in range(0,windChanges + 1):
-        windDirection = eval(input("Enter wind direction: "))
-        windVelocity = eval(input("Enter wind speed: "))
+        windDirection = numinput("Enter wind direction: ")
+        windVelocity = numinput("Enter wind speed: ")
         if(i == windChanges):
             lastLegWind = legs - windLegIndex
         else:
-            lastLegWind = eval(input("Enter the number of legs the wind is the same: ")) + windLegIndex
+            lastLegWind = numinput("Enter the number of legs the wind is the same: ") + windLegIndex
         for j in range(windLegIndex, lastLegWind + windLegIndex):
             routeData[j][2] = windDirection
             routeData[j][3] = windVelocity
         windLegIndex = lastLegWind
 else:
-    windDirection = eval(input("Enter wind direction: "))
-    windVelocity = eval(input("Enter wind speed: "))
+    windDirection = numinput("Enter wind direction: ")
+    windVelocity = numinput("Enter wind speed: ")
     for i in range(0,len(routeData)):
         routeData[i][2] = windDirection
         routeData[i][3] = windVelocity
+print('\n')
 
-magneticVariationChanges = eval(input("Enter number of Magnetic Variation changes: "))
+magneticVariationChanges = numinput("Enter number of Magnetic Variation changes: ")
 if(magneticVariationChanges > 0 and magneticVariationChanges <= legs):
     magneticVariationLegIndex = 0
     for i in range(0,magneticVariationChanges + 1):
@@ -125,7 +143,7 @@ if(magneticVariationChanges > 0 and magneticVariationChanges <= legs):
         if(i == magneticVariationChanges):
             lastLegMagneticVariation = legs - magneticVariationLegIndex
         else:
-            lastLegMagneticVariation = eval(input("Enter the number of legs the Magnetic Variation is the same: ")) + magneticVariationLegIndex
+            lastLegMagneticVariation = numinput("Enter the number of legs the Magnetic Variation is the same: ") + magneticVariationLegIndex
         for j in range(magneticVariationLegIndex, lastLegMagneticVariation + magneticVariationLegIndex):
             routeData[j][4] = magneticVariation
         magneticVariationLegIndex = lastLegMagneticVariation
@@ -190,7 +208,7 @@ for i in range(0,len(routeData)):
     print("Ground Speed: " + str(routeData[i][7]))
     print("Distance: " + str(routeData[i][11]))
     print("Estimated Time Enroute: " + str(routeData[i][12]))
-    print("Estimated Fuel Consumption: " + str(routeData[i][13]))
+    print("Estimated Fuel Consumption: " + str(int(routeData[i][13]*100)/100))
     print('\n')
 totalDistance = int(totalDistance*10)/10
 totalFuel = int(totalFuel*10)/10
