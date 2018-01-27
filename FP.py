@@ -20,14 +20,26 @@ def floatinput(message):
         else:
             return inp
             break
+def altitudeRound(altitude):
+    altitude = altitude/1000
+    if(int(altitude) == int(altitude + .5)):
+        altitude = int(altitude)
+    else:
+        altitude = int(altitude+.5)
+    return altitude
 
 TFDTC = [[74,730,0,0,0], [73,695,1,.4,2], [73,655,3,.8,4], [73,620,4,1.2,6], [73,600,6,1.5,8], [73,550,8,1.9,10], [73,505,10,2.2,13],
  [73,455,12,2.6,16], [72,410,14,3.0,19], [72,360,17,3.4,22], [72,315,20,3.9,27], [72,265,24,4.4,32], [72,220,28,5.0,38]]
 def climbPerf(startingAltitude,endingAltitude):
+    #Find climbSpeed by averaging climbspeeds to reach the endingAltitude
     climbSpeed = (TFDTC[startingAltitude][0]+TFDTC[endingAltitude][0]) / 2
+    #Find climbRate by averaging climbRate to reach the endingAltitude
     climbRate = (TFDTC[startingAltitude][1] + TFDTC[endingAltitude][1]) / 2
+    #Find time to climb by finding difference between time to climb to startingAltitude and endingAltitude
     timeToClimb = TFDTC[endingAltitude][2]-TFDTC[startingAltitude][2]
+    #Find fuel to climb by finding difference between fuel to climb to startingAltitude and endingAltitude
     fuelUsedToClimb = TFDTC[endingAltitude][3]-TFDTC[startingAltitude][3]
+    #Round fuel to the nearest hundred
     fuelUsedToClimb = int(fuelUsedToClimb*100)/100
     distanceToClimb = TFDTC[endingAltitude][4]-TFDTC[startingAltitude][4]
     output = []
@@ -67,7 +79,7 @@ def windCorrectionCalc(trueCourse, trueAirSpeed, windDirection, windVelocity):
 legs = numinput("Enter number of legs: ")
 routeData = []
 departureAltitude = numinput("Enter departure airport altitude: ")
-lastAltitude = int(departureAltitude / 1000)
+lastAltitude = departureAltitude
 trueAirSpeed = numinput("Enter Cruise True Air Speed: ")
 fuelConsumptionPerMinute = floatinput("Enter fuel consumption in gallons per hour: ") / 60
 for i in range(0,legs):
@@ -75,16 +87,15 @@ for i in range(0,legs):
     trueCourse = numinput("Enter true course: ")
     altitude = numinput("Enter altitude for leg: ")
     distance = floatinput("Enter distance for leg: ")
-    altitude = int(altitude/1000)
     if(i > 0):
-        if(altitude != lastAltitude):
+        if(altitudeRound(altitude) != altitudeRound(lastAltitude)):
             climbPerformance = []
-            climbPerformance = climbPerf(lastAltitude, altitude)
+            climbPerformance = climbPerf(altitudeRound(lastAltitude), altitudeRound(altitude))
             routeData.append([trueCourse, climbPerformance[0], 0, 0, 0, altitude, climbPerformance, 0, 0, 0, 0, climbPerformance[4], 0, 0])
             distance = distance - climbPerformance[4]
     elif(i==0):
         climbPerformance = []
-        climbPerformance = climbPerf(lastAltitude, altitude)
+        climbPerformance = climbPerf(altitudeRound(lastAltitude), altitudeRound(altitude))
         routeData.append([trueCourse, climbPerformance[0], 0, 0, 0, altitude, climbPerformance, 0, 0, 0, 0, climbPerformance[4], 0, 0])
         distance = distance - climbPerformance[4]
 
