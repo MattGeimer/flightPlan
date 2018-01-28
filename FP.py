@@ -28,6 +28,14 @@ def altitudeRound(altitude):
         altitude = int(altitude+.5)
     return altitude
 
+def formatSpaces(string, spaceAvail):
+    difference = spaceAvail - len(str(string))
+    for i in range(0,difference):
+        string = str(string) + " "
+    string = string + " | "
+    return str(string)
+
+
 TFDTC = [[74,730,0,0,0], [73,695,1,.4,2], [73,655,3,.8,4], [73,620,4,1.2,6], [73,600,6,1.5,8], [73,550,8,1.9,10], [73,505,10,2.2,13],
  [73,455,12,2.6,16], [72,410,14,3.0,19], [72,360,17,3.4,22], [72,315,20,3.9,27], [72,265,24,4.4,32], [72,220,28,5.0,38]]
 def climbPerf(startingAltitude,endingAltitude):
@@ -43,6 +51,7 @@ def climbPerf(startingAltitude,endingAltitude):
     fuelUsedToClimb = int(fuelUsedToClimb*100)/100
     distanceToClimb = TFDTC[endingAltitude][4]-TFDTC[startingAltitude][4]
     output = []
+    climbSpeed = int(climbSpeed)
     output = [climbSpeed, climbRate, timeToClimb, fuelUsedToClimb, distanceToClimb]
     return output
 
@@ -171,7 +180,7 @@ for i in range(0,len(routeData)):
     routeData[i][8] = windCorrectionData[0] + routeData[i][0]
     routeData[i][9] = routeData[i][8] + routeData[i][4]
     routeData[i][10] = routeData[i][9] + 0 #0 is deviation from aircraft equipment
-    routeData[i][12] = int(routeData[i][11] / routeData[i][7] * 6000)/100
+    routeData[i][12] = int((int(routeData[i][11] / routeData[i][7] * 6000)/100) * 10) / 10
     if(routeData[i][6] == 0):
         routeData[i][13] = fuelConsumptionPerMinute * routeData[i][12]
     else:
@@ -228,3 +237,35 @@ print('\n' + "Total Trip: " + '\n' + '\n')
 print("Total Distance: " + str(totalDistance))
 print("Estimated Total Time Enroute: " + str(totalTime))
 print("Estimated Total Fuel Consumption: " + str(totalFuel))
+
+def outputToFile(routeData):
+    spacesToFormat = [3, 5, 5, 5, 3, 3, 5, 4, 2, 7, 5, 5, 4, 3, 4]
+    filein = open("format.txt", 'r')
+    outputFormat = filein.readlines()
+    filein.close()
+    output = []
+    for i in range(0,len(outputFormat)):
+        outputFormat[i] = outputFormat[i].replace('\n', "")
+    output.append(outputFormat[0] + '\n')
+    output.append(outputFormat[1] + '\n')
+    for i in range(0,len(routeData)):
+        outputLine = formatSpaces(i+1, spacesToFormat[0])
+        outputLine = outputLine + formatSpaces(str(routeData[i][5]), spacesToFormat[1])
+        outputLine = outputLine + formatSpaces(str(routeData[i][2]), spacesToFormat[2])
+        outputLine = outputLine + formatSpaces(str(routeData[i][3]), spacesToFormat[3])
+        outputLine = outputLine + formatSpaces(str(routeData[i][1]), spacesToFormat[4])
+        outputLine = outputLine + formatSpaces(str(routeData[i][0]), spacesToFormat[5])
+        outputLine = outputLine + formatSpaces(str(int((routeData[i][8] - routeData[i][0]) * 10) / 10), spacesToFormat[6])
+        outputLine = outputLine + formatSpaces(str(routeData[i][8]), spacesToFormat[7])
+        outputLine = outputLine + formatSpaces(str(routeData[i][4]), spacesToFormat[8])
+        outputLine = outputLine + formatSpaces(str(routeData[i][9]), spacesToFormat[9])
+        outputLine = outputLine + formatSpaces(str(routeData[i][10]), spacesToFormat[10])
+        outputLine = outputLine + formatSpaces(str(routeData[i][7]), spacesToFormat[11])
+        outputLine = outputLine + formatSpaces(str(routeData[i][11]), spacesToFormat[12])
+        outputLine = outputLine + formatSpaces(str(routeData[i][12]), spacesToFormat[13])
+        outputLine = outputLine + formatSpaces(str(int(routeData[i][13]*100)/100), spacesToFormat[14]).replace(" | ", " |")
+        output.append(outputLine + '\n')
+        fileout = open("output.txt", 'w')
+        fileout.writelines(output)
+        fileout.close()
+outputToFile(routeData)
